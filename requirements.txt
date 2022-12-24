@@ -2,3 +2,5 @@ django
 hdfs
 thrift
 happybase
+djangorestframework
+djangorestframework-jwt
