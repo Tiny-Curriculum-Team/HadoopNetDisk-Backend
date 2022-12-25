@@ -1,6 +1,7 @@
 django
+pymysql
 hdfs
 thrift
 happybase
-djangorestframework
-djangorestframework-jwt
+pyjwt
+pillow
