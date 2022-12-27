@@ -5,3 +5,6 @@ thrift
 happybase
 pyjwt
 pillow
+pyhdfs
+thrift
+hbase-thrift
