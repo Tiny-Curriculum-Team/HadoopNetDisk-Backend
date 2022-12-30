@@ -1,4 +1,4 @@
-from utils import *
+from Files.utils import *
 
 
 def upload_files(request):
