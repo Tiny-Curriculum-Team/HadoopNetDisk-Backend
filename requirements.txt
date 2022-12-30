@@ -1,8 +1,5 @@
 django
 pymysql
-hdfs
-thrift
-happybase
 pyjwt
 pillow
 pyhdfs
