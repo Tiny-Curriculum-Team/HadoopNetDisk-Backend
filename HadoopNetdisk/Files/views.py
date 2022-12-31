@@ -13,7 +13,7 @@ from django.http import FileResponse, JsonResponse
 def upload_files(request):
     # 接收到formdata的出文件之外的数据
     data = request.POST
-    token = request.POST.get()
+    token = request.POST.get('token')
     info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
     user_name = info_dict['username']
     file_name = data.get('filename')
@@ -50,6 +50,7 @@ def upload_files(request):
     except Exception as e:
         print(e)
         return JsonResponse({'code': 500, 'message': 'hbase error'})
+
     # 接收文件，getlist是接收多个文件
     # formdata在vue中同一个key传入了多个value，value成为了一个数组，所以需要使用getlist来获取所有文件
     # new_files = request.FILES.getlist('new_files')
@@ -85,9 +86,17 @@ def download_files(request):
 
 
 def search_for_files(request):
-    pass
-    # cli = connect_to_hbase()
-    # scanner_get_select(cli, 'SBhbase', ['', '', '', '', ''], 0, rows_cnt=100000)
+    token = request.GET.get('token')
+    info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
+    user_name = info_dict['username']
+    data = request.POST
+    profix = data.get("profix")
+    try:
+        client_hbase = connect_to_hbase()
+        result = find_file(client_hbase,"SBhbase",profix,"filename")
+        print(result)
+    except:
+        pass
 
 
 def del_files(request):
@@ -121,4 +130,3 @@ def get_all_files(request):
         res_dict.update({item[0]: item[1]['type']})
     res = json.dumps(res_dict)
     return JsonResponse(res)
-
