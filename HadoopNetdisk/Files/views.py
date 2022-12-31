@@ -20,7 +20,7 @@ def download_files(request):
     file_paths = request.GET.get('file_paths')
     cli = connect_to_hdfs()
     for user_file_path in file_paths:
-        file_path = os.path.join('localhost:9870/home/hadoop/_files', user_file_path)
+        file_path = os.path.join('_files', user_file_path)
         temp_path = os.path.join(settings.MEDIA_ROOT, user_file_path)
         download_from_hdfs(cli, file_path, temp_path)
 
@@ -40,6 +40,8 @@ def download_files(request):
 
 def search_for_files(request):
     pass
+    # cli = connect_to_hbase()
+    # scanner_get_select(cli, 'SBhbase', ['', '', '', '', ''], 0, rows_cnt=100000)
 
 
 def del_files(request):
@@ -48,6 +50,14 @@ def del_files(request):
     user_name = info_dict['username']
 
     file_paths = request.GET.get('file_paths')
+    cli = connect_to_hdfs()
+    for file_to_del in file_paths:
+        try:
+            file_path = os.path.join('_files', user_name, file_to_del)
+            hdfs_del_files(cli, file_path)
+        except Exception as e:
+            print(e)
+    return JsonResponse({'code': 200, 'message': '删除操作已完成'})
 
 
 def get_all_files(request):
