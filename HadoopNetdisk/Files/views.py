@@ -20,6 +20,7 @@ def upload_files(request):
     file_name = data.get('filename')
     file_suffix = data.get('suffix')
     file_path = data.get('path')
+    row_data = random.randint(1, 100000)
     new_file = request.FILES.get('file')
 
     temp_path = os.path.join(settings.MEDIA_ROOT, user_name, file_name)
@@ -47,12 +48,12 @@ def upload_files(request):
             create_table(client_hbase, "SBhbase", "fileinfo", "filedata")
             # "fileinfo"                            "filedata"
             # "filename", "suffix", "hdfspath"      "username", "permission", "size"
-            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "fileinfo", "filename", file_name)
-            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "fileinfo", "suffix", file_suffix)
-            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "fileinfo", "hdfspath", hdfs_path)
-            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "filedata", "username", user_name)
-            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "filedata", "permission", 0)
-            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "filedata", "size", sys.getsizeof(new_file))
+            insert_a_row(client_hbase, user_name, row_data, "fileinfo", "filename", file_name)
+            insert_a_row(client_hbase, user_name, row_data, "fileinfo", "suffix", file_suffix)
+            insert_a_row(client_hbase, user_name, row_data, "fileinfo", "hdfspath", hdfs_path)
+            insert_a_row(client_hbase, user_name, row_data, "filedata", "username", user_name)
+            insert_a_row(client_hbase, user_name, row_data, "filedata", "permission", 0)
+            insert_a_row(client_hbase, user_name, row_data, "filedata", "size", sys.getsizeof(new_file))
     except Exception as e:
         print(e)
         return JsonResponse({'code': 500, 'message': 'hbase error'})
