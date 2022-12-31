@@ -24,7 +24,8 @@ def user_login(request):
             try:
                 login(request, user)
                 token = jwt.encode({'username': username, 'site': 'netdisk.hadoop.com'},
-                                   'secret_key', algorithm='HS256').decode('ascii')
+                                   'secret_key', algorithm='HS256')  # .decode('ascii')
+                print(type(token))
                 return JsonResponse({'code': 200, 'message': '登录成功', 'token': token})
             except Exception as e:
                 print(e)

@@ -2,6 +2,9 @@ django
 pymysql
 pyjwt
 pillow
-pyhdfs
+hdfs
 thrift
 hbase-thrift
+urllib
+os
+zipfile
