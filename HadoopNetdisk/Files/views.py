@@ -6,6 +6,7 @@ import random
 import sys
 
 from Files.utils import *
+from Users.models import User
 from django.conf import settings
 from django.http import FileResponse, JsonResponse
 
@@ -32,6 +33,11 @@ def upload_files(request):
         hdfs_path = os.path.join(root_path, user_name, file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
         client_hdfs = connect_to_hdfs()
         upload_to_hdfs(client_hdfs, temp_path, hdfs_path)
+
+        file_size = os.path.getsize(temp_path) / (1024 * 1024 * 1024)
+        current_user = User.objects.get(user_name=user_name)
+        current_user.available_store -= file_size
+        current_user.save()
     except Exception as e:
         print(e)
         return JsonResponse({'code': 500, 'message': 'hdfs error'})
