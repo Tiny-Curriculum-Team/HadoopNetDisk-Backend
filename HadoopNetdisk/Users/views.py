@@ -24,8 +24,9 @@ def user_login(request):
             try:
                 login(request, user)
                 token = jwt.encode({'username': username, 'site': 'netdisk.hadoop.com'},
-                                   'secret_key', algorithm='HS256')  # .decode('ascii')
-                print(type(token))
+              'secret_key', algorithm='HS256')
+                if type(token) is bytes:
+                    token = token.decode('ascii')
                 return JsonResponse({'code': 200, 'message': '登录成功', 'token': token})
             except Exception as e:
                 print(e)
@@ -43,7 +44,7 @@ def user_sign_in(request):
         user_birth = raw_data.get("birth")
 
         if not (user_name and password1 and password2 and user_tele and user_birth):
-            return JsonResponse({'code': 500, 'message': '请求参数错误'})
+            return JsonResponse({'code': 500, 'message': '请求错误'})
         elif password1 != password2:
             return JsonResponse({'code': 500, 'message': '两次密码输入不一致'})
         else:

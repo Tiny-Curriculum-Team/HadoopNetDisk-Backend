@@ -92,7 +92,8 @@ def list_all_tables(client):
     '''
     列出所有表
     '''
-    print(client.getTableNames())
+    return client.getTableNames()
+
 
 
 def create_table(client, table_name, *col_familys):
