@@ -20,15 +20,21 @@ def upload_files(request):
     file_suffix = data.get('suffix')
     file_path = data.get('path')
     new_file = request.FILES.get('file')
+
+    temp_path = os.path.join(settings.MEDIA_ROOT, user_name, file_name)
+    with open(temp_path, "wb") as f:
+        f.write(new_file)
+
     root_path = "http://127.0.0.1:9870/"
     if not (token and user_name and file_name and file_suffix and file_path and new_file):
         return JsonResponse({'code': 500, 'message': '请求参数错误'})
     try:
-        hdfs_path = os.path.join(root_path,user_name,file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
+        hdfs_path = os.path.join(root_path, user_name, file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
         client_hdfs = connect_to_hdfs()
-        upload_to_hdfs(client_hdfs,new_file,hdfs_path)
-    except:
-        return JsonResponse({'code':500,'message':'hdfs error'})
+        upload_to_hdfs(client_hdfs, temp_path, hdfs_path)
+    except Exception as e:
+        print(e)
+        return JsonResponse({'code': 500, 'message': 'hdfs error'})
     try:
         client_hbase = connect_to_hbase()
         if not ("SBhbase" in list_all_tables(client_hbase)):
