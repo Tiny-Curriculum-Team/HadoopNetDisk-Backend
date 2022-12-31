@@ -1,6 +1,5 @@
-from django.db import models
-from pyhdfs import HdfsClient
-import math
+from hdfs import Client
+
 from thrift.transport import TSocket, TTransport
 from thrift.protocol import TBinaryProtocol
 from hbase.ttypes import ColumnDescriptor
@@ -8,9 +7,13 @@ from hbase import Hbase
 from hbase.ttypes import Mutation
 
 
-def hdfs_read(hdfs_file):
-    client = HdfsClient(hosts='localhost:9870')  # hdfs地址
-    res = client.open(hdfs_file)  # hdfs文件路径,根目录/
+def connect_to_hdfs():
+    client = Client("http://127.0.0.1:9870/")
+    return client
+
+
+def hdfs_read(cli, hdfs_file: str):
+    res = cli.read(hdfs_file)  # hdfs文件路径,根目录/
     return res
     # csv等文本文件按行读取可用以下方式
     # for r in res:
@@ -18,26 +21,51 @@ def hdfs_read(hdfs_file):
     #     print(line)
 
 
-def hdfs_write(file_dir, hdfs_dir):
-    client = HdfsClient(hosts='localhost:9870')  # hdfs地址
-    try:
-        client.copy_to_local(file_dir, hdfs_dir)  # hdfs地址一定要不存在
-    except:
-        print("file_dir or hdfs_dir error")
+def hdfs_del_files(cli, hdfs_path):
+    cli.delete(hdfs_path)
 
 
-def hdfs_create(file, hdfs_dir):
-    client = HdfsClient(hosts='localhost:9870')  # hdfs地址
-    client.create(hdfs_dir, file)
+def hdfs_create(cli, file, hdfs_dir):
+    cli.create(hdfs_dir, file)
 
 
+def hdfs_mkdir(cli, hdfs_path):
+    cli.makedirs(hdfs_path)
+
+
+# 上传文件到hdfs
+def upload_to_hdfs(cli, local_path, hdfs_path):
+    cli.upload(hdfs_path, local_path, cleanup=True)
+
+
+# 从hdfs获取文件到本地
+def download_from_hdfs(cli, hdfs_path, local_path):
+    cli.download(hdfs_path, local_path, overwrite=False)
+
+
+#覆盖数据写到hdfs文件
+def hdfs_overwrite(client, hdfs_path,data):
+    client.write(hdfs_path, data, overwrite=True, append=False)
+
+
+def hdfs_mv(client,hdfs_src_path, hdfs_dst_path):
+    client.rename(hdfs_src_path, hdfs_dst_path)
+
+
+def hdfs_list(client, hdfs_path, verbose=False):
+    return client.list(hdfs_path, status=True) if verbose else client.list(hdfs_path, status=False)
+
+
+###
+### HBase
+###
 def connect_to_hbase():
     '''
     连接远程HBase
     :return: 连接HBase的客户端实例
     '''
     # thrift默认端口是9090
-    socket = TSocket.TSocket('127.0.0.1', 9870)  # 10.0.86.245是master结点ip
+    socket = TSocket.TSocket('127.0.0.1', 9090)  # 10.0.86.245是master结点ip
     socket.setTimeout(5000)
     transport = TTransport.TBufferedTransport(socket)
     protocol = TBinaryProtocol.TBinaryProtocol(transport)
