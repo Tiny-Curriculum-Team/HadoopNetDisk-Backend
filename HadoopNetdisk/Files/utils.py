@@ -22,7 +22,7 @@ def zip_ya(compress_dir, file_name, file_path):
 
 
 def connect_to_hdfs():
-    client = Client("http://127.0.0.1:9870/")
+    client = Client("http://127.0.0.1:9870/", root='/home/hadoop/')
     return client
 
 

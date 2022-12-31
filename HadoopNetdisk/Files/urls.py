@@ -7,4 +7,5 @@ urlpatterns = [
     path('download/, ', views.download_files),
     path('delfile/, ', views.del_files),
     path('search/, ', views.search_for_files),
+    path('getfiles/', views.get_all_files)
 ]
