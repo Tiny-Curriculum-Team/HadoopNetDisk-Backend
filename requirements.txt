@@ -3,3 +3,8 @@ pymysql
 pyjwt
 pillow
 hdfs
+thrift
+hbase-thrift
+urllib
+os
+zipfile

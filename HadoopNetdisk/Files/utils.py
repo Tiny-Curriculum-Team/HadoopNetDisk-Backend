@@ -1,10 +1,24 @@
 from hdfs import Client
 
+import os
+import zipfile
 from thrift.transport import TSocket, TTransport
 from thrift.protocol import TBinaryProtocol
 from hbase.ttypes import ColumnDescriptor
 from hbase import Hbase
 from hbase.ttypes import Mutation
+
+
+def zip_ya(compress_dir, file_name, file_path):
+    zip_file_path = os.path.join(file_path, file_name)
+    z = zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED)
+    for dirpath, dirnames, filenames in os.walk(compress_dir):
+        fpath = dirpath.replace(compress_dir, '')
+        fpath = fpath and fpath + os.sep or ''
+        for filename in filenames:
+            z.write(os.path.join(dirpath, filename), fpath + filename)
+            print('压缩成功')
+    z.close()
 
 
 def connect_to_hdfs():
