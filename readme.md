@@ -1,8 +1,11 @@
 ## Docker
 
-本项目需要由docker安装Hadoop集群，进入到`Hadoop_Cluster`文件夹内，执行`docker-compose up -d`。
+本项目需要由docker安装Hadoop集群，执行如下命令：
 
-# 答辩应对问题：
+```shell
+docker pull pommespeter0601/hbase-docker
+docker run -itd -p 9870:9870 -p 9090:9090 --name hdp pommespeter0601/hbase-docker
+```
 
 ## 为什么用MySQL存储用户信息而不是使用HBase？
 

@@ -95,8 +95,10 @@ def search_for_files(request):
         client_hbase = connect_to_hbase()
         result = find_file(client_hbase,"SBhbase",profix,"filename")
         print(result)
-    except:
-        pass
+        return JsonResponse(json.dumps(result))
+    except Exception as e:
+        print(e)
+        return JsonResponse({"code": 500, "message": "Error to search"})
 
 
 def del_files(request):
