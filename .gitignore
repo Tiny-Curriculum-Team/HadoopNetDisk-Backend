@@ -3,3 +3,5 @@ __pycache__
 migrations
 *.pyc
 /FinalExp/HadoopNetdisk/HadoopNetdisk/__pycache__/*
+.gitignore
+./HadoopNetdisk/HadoopNetdisk/settings.py

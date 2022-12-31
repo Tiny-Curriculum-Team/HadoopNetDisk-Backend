@@ -2,6 +2,8 @@ import jwt
 import json
 import os.path
 import urllib.parse
+import random
+import sys
 
 from Files.utils import *
 from django.conf import settings
@@ -9,7 +11,45 @@ from django.http import FileResponse, JsonResponse
 
 
 def upload_files(request):
-    pass
+    # 接收到formdata的出文件之外的数据
+    data = request.POST
+    token = request.POST.get()
+    info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
+    user_name = info_dict['username']
+    file_name = data.get('filename')
+    file_suffix = data.get('suffix')
+    file_path = data.get('path')
+    new_file = request.FILES.get('file')
+    root_path = "http://127.0.0.1:9870/"
+    if not (token and user_name and file_name and file_suffix and file_path and new_file):
+        return JsonResponse({'code': 500, 'message': '请求参数错误'})
+    try:
+        hdfs_path = os.path.join(root_path,user_name,file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
+        client_hdfs = connect_to_hdfs()
+        upload_to_hdfs(client_hdfs,new_file,hdfs_path)
+    except:
+        return JsonResponse({'code':500,'message':'hdfs error'})
+    try:
+        client_hbase = connect_to_hbase()
+        if not ("SBhbase" in list_all_tables(client_hbase)):
+            create_table(client_hbase, "SBhbase", "fileinfo", "filedata")
+            # "fileinfo"                            "filedata"
+            # "filename", "suffix", "hdfspath"      "username", "permission", "size"
+            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "fileinfo", "filename", file_name)
+            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "fileinfo", "suffix", file_suffix)
+            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "fileinfo", "hdfspath", hdfs_path)
+            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "filedata", "username", user_name)
+            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "filedata", "permission", 0)
+            insert_a_row(client_hbase, user_name, random.randint(1, 100000), "filedata", "size", sys.getsizeof(new_file))
+    except Exception as e:
+        print(e)
+        return JsonResponse({'code': 500, 'message': 'hbase error'})
+    # 接收文件，getlist是接收多个文件
+    # formdata在vue中同一个key传入了多个value，value成为了一个数组，所以需要使用getlist来获取所有文件
+    # new_files = request.FILES.getlist('new_files')
+
+    # formdata在vue中同一个key只有一个文件类型的value，可以使用get来获取文件
+    # new_files = request.FILES.get('file')
 
 
 def download_files(request):
