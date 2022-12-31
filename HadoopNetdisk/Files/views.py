@@ -13,7 +13,7 @@ from django.http import FileResponse, JsonResponse
 def upload_files(request):
     # 接收到formdata的出文件之外的数据
     data = request.POST
-    token = request.POST.get()
+    token = request.POST.get('token')
     info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
     user_name = info_dict['username']
     file_name = data.get('filename')
@@ -24,11 +24,11 @@ def upload_files(request):
     if not (token and user_name and file_name and file_suffix and file_path and new_file):
         return JsonResponse({'code': 500, 'message': '请求参数错误'})
     try:
-        hdfs_path = os.path.join(root_path,user_name,file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
+        hdfs_path = os.path.join(root_path, user_name, file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
         client_hdfs = connect_to_hdfs()
-        upload_to_hdfs(client_hdfs,new_file,hdfs_path)
+        upload_to_hdfs(client_hdfs, new_file, hdfs_path)
     except:
-        return JsonResponse({'code':500,'message':'hdfs error'})
+        return JsonResponse({'code': 500, 'message': 'hdfs error'})
     try:
         client_hbase = connect_to_hbase()
         if not ("SBhbase" in list_all_tables(client_hbase)):
@@ -44,6 +44,7 @@ def upload_files(request):
     except Exception as e:
         print(e)
         return JsonResponse({'code': 500, 'message': 'hbase error'})
+
     # 接收文件，getlist是接收多个文件
     # formdata在vue中同一个key传入了多个value，value成为了一个数组，所以需要使用getlist来获取所有文件
     # new_files = request.FILES.getlist('new_files')
@@ -79,9 +80,17 @@ def download_files(request):
 
 
 def search_for_files(request):
-    pass
-    # cli = connect_to_hbase()
-    # scanner_get_select(cli, 'SBhbase', ['', '', '', '', ''], 0, rows_cnt=100000)
+    token = request.GET.get('token')
+    info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
+    user_name = info_dict['username']
+    data = request.POST
+    profix = data.get("profix")
+    try:
+        client_hbase = connect_to_hbase()
+        result = find_file(client_hbase,"SBhbase",profix,"filename")
+        print(result)
+    except:
+        pass
 
 
 def del_files(request):
@@ -115,4 +124,3 @@ def get_all_files(request):
         res_dict.update({item[0]: item[1]['type']})
     res = json.dumps(res_dict)
     return JsonResponse(res)
-

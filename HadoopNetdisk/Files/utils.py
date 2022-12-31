@@ -145,6 +145,11 @@ def insert_a_row(client, table_name, row_name, col_family, column_name, value):
     client.mutateRow(table_name, row_name, mutations)
     print('在{0}表{1}列簇{2}列插入{3}数据成功.'.format(table_name, col_family, column_name, value))
 
+def find_file(client,table_name,profix,columus):
+    scan_id = client.scannerOpenWithPrefix(table_name,profix,columus)
+    result = client.scannerGet(scan_id)
+    return result
+
 
 def query_a_row(client, table_name, row_name, col_name=None, columns=None):
     '''
