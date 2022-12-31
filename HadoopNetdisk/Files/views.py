@@ -1,10 +1,11 @@
 import jwt
+import json
 import os.path
 import urllib.parse
 
 from Files.utils import *
 from django.conf import settings
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 
 
 def upload_files(request):
@@ -42,4 +43,26 @@ def search_for_files(request):
 
 
 def del_files(request):
-    pass
+    token = request.GET.get('token')
+    info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
+    user_name = info_dict['username']
+
+    file_paths = request.GET.get('file_paths')
+
+
+def get_all_files(request):
+    token = request.GET.get('token')
+    info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
+    user_name = info_dict['username']
+
+    request_path = request.GET.get('require_path')
+
+    cli = connect_to_hdfs()
+    user_root_dir = os.path.join('_files', user_name, request_path)
+    file_dict = hdfs_list(cli, user_root_dir, verbose=True)
+    res_dict = {}
+    for item in file_dict:
+        res_dict.update({item[0]: item[1]['type']})
+    res = json.dumps(res_dict)
+    return JsonResponse(res)
+
