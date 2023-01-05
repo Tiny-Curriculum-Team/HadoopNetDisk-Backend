@@ -13,34 +13,32 @@ from django.http import FileResponse, JsonResponse
 
 def upload_files(request):
     # 接收到formdata的出文件之外的数据
+    root_path = "http://127.0.0.1:14000/"
     data = request.POST
     token = request.POST.get('token')
     info_dict = jwt.decode(token, 'secret_key', algorithms=['HS256'])
     user_name = info_dict['username']
     file_name = data.get('filename')
-    file_suffix = data.get('suffix')
     file_path = data.get('path')
     row_data = random.randint(1, 100000)
     new_file = request.FILES.get('file')
-
+    if not (token and user_name and file_name and file_path and new_file):
+        return JsonResponse({'code': 500, 'message': '请求参数错误'})
     temp_path = os.path.join(settings.MEDIA_ROOT, user_name, file_name)
     with open(temp_path, "wb") as f:
         f.write(new_file)
-
-    root_path = "http://127.0.0.1:9870/"
-    if not (token and user_name and file_name and file_suffix and file_path and new_file):
-        return JsonResponse({'code': 500, 'message': '请求参数错误'})
     try:
         hdfs_path = os.path.join(root_path, user_name, file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
         client_hdfs = connect_to_hdfs()
         upload_to_hdfs(client_hdfs, temp_path, hdfs_path)
-
         file_size = os.path.getsize(temp_path) / (1024 * 1024 * 1024)
         current_user = User.objects.get(user_name=user_name)
         current_user.available_store -= file_size
         current_user.save()
+        os.removedirs(os.path.join(settings.MEDIA_ROOT, user_name))
     except Exception as e:
         print(e)
+        os.removedirs(os.path.join(settings.MEDIA_ROOT, user_name))
         return JsonResponse({'code': 500, 'message': 'hdfs error'})
     try:
         client_hbase = connect_to_hbase()
@@ -49,7 +47,7 @@ def upload_files(request):
             # "fileinfo"                            "filedata"
             # "filename", "suffix", "hdfspath"      "username", "permission", "size"
         insert_a_row(client_hbase, user_name, row_data, "fileinfo", "filename", file_name)
-        insert_a_row(client_hbase, user_name, row_data, "fileinfo", "suffix", file_suffix)
+        insert_a_row(client_hbase, user_name, row_data, "fileinfo", "suffix", file_name.split('.')[-1])
         insert_a_row(client_hbase, user_name, row_data, "fileinfo", "hdfspath", hdfs_path)
         insert_a_row(client_hbase, user_name, row_data, "filedata", "username", user_name)
         insert_a_row(client_hbase, user_name, row_data, "filedata", "permission", 0)
