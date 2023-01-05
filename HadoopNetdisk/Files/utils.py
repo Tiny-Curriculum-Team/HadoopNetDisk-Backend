@@ -104,7 +104,7 @@ def create_table(client, table_name, *col_familys):
         col = ColumnDescriptor(name=str(col_family))
         col_family_list.append(col)
     # 创建表
-    client.create_table(table_name, col_family_list)
+    client.createTable(table_name, col_family_list)
     print('建表成功！')
 
 
@@ -114,7 +114,7 @@ def del_table(client, table_name):
     '''
     if client.isTableEnabled(table_name):
         client.disableTable(table_name)  # 删除表前需要先设置该表不可用
-    client.del_table(table_name, )
+    client.deleteTable(table_name)
     print('删除表{}成功！'.format(table_name))
 
 
@@ -126,7 +126,7 @@ def del_all_rows(client, table_name, row_key):
     :param row_key: 行键
     '''
     if query_a_row(client, table_name, row_key):
-        client.del_all_rows(table_name, row_key, )
+        client.deleteAllRow(table_name, row_key)
         print('删除{0}表{1}行成功！'.format(table_name, row_key))
     else:
         print('错误提示：未找到{0}表{1}行数据！'.format(table_name, row_key))
@@ -160,7 +160,7 @@ def query_a_row(client, table_name, row_name, col_name=None, columns=None):
     # 1.如果列簇和列名两个都为空，则直接取出当前行所有值，并转换成字典形式作为返回值
     row_dict = {}
     if col_name is None and columns is None:
-        results = client.query_a_row(table_name, row_name, )
+        results = client.getRowWithColumns(table_name, row_name, col_name)
         for result in results:
             for key, TCell_value in result.columns.items():
                 # 由于key值是'列簇:列名'形式,所以需要通过split函数以':'把列名分割出来
@@ -178,7 +178,7 @@ def query_a_row(client, table_name, row_name, col_name=None, columns=None):
         return row_dict
     # 3.如果列簇和列名都不为空，则直接取出当前列的值
     elif col_name is not None and columns is not None:
-        results = client.query_a_row(table_name, row_name, )
+        results = client.getRowWithColumns(table_name, row_name, )
         for result in results:
             value = result.columns.get('{0}:{1}'.format(col_name, columns)).value
         return value
@@ -221,23 +221,3 @@ def scanner_get_select(client, table_name, columns, start_row, stop_row=None, ro
     # 如果查询结果为空，则传入行键值或列值参数错误，返回空列表
     else:
         return []
-
-
-# if __name__ == '__main__':
-#     # 连接HBase数据库，返回客户端实例
-#     client = connect_to_hbase()
-#     # 创建表
-#     createTable(client, 'firstTable', 'c1', 'c2', 'c3')
-#     # 插入或更新列值
-#     insertRow(client, 'firstTable', '0001', 'c1', 'name', 'sparks')
-#     # 获取HBase指定表的某一行数据
-#     dataDict = getRow(client, 'firstTable', '0001')
-#     print(dataDict)
-#     # 删除指定表某行数据
-#     deleteAllRow(client, '2018AAAI_Papers', '20181106')
-#     # 依次扫描HBase指定表的每行数据(根据起始行，扫描到表的最后一行或指定行的前一行)
-#     MutilRowsDict = scanner_get_select(client, '2018AAAI_Papers', ['paper_info:title', 'paper_info:keywords'],
-#                                        '20180900', '20180904')
-#     print(MutilRowsDict)
-#     # 列出所有表名
-#     list_all_tables(client)
