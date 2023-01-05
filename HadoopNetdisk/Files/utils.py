@@ -1,7 +1,6 @@
-from hdfs import Client
-
 import os
 import zipfile
+from hdfs import InsecureClient
 from thrift.transport import TSocket, TTransport
 from thrift.protocol import TBinaryProtocol
 from hbase.ttypes import ColumnDescriptor
@@ -22,17 +21,13 @@ def zip_ya(compress_dir, file_name, file_path):
 
 
 def connect_to_hdfs():
-    client = Client("http://127.0.0.1:9870/", root='/home/hadoop/')
+    client = InsecureClient("http://127.0.0.1:14000/", root='/user/hadoop/', timeout=10000)
     return client
 
 
 def hdfs_read(cli, hdfs_file: str):
-    res = cli.read(hdfs_file)  # hdfs文件路径,根目录/
+    res = cli.read(hdfs_file)
     return res
-    # csv等文本文件按行读取可用以下方式
-    # for r in res:
-    #     line = str(r, encoding='utf8')  # open后是二进制,str()转换为字符串并转码
-    #     print(line)
 
 
 def hdfs_del_files(cli, hdfs_path):
@@ -58,11 +53,11 @@ def download_from_hdfs(cli, hdfs_path, local_path):
 
 
 #覆盖数据写到hdfs文件
-def hdfs_overwrite(client, hdfs_path,data):
-    client.write(hdfs_path, data, overwrite=True, append=False)
+def hdfs_write(client, hdfs_path, data, overwrite=False):
+    client.write(hdfs_path, data, overwrite=overwrite, append=False)
 
 
-def hdfs_mv(client,hdfs_src_path, hdfs_dst_path):
+def hdfs_mv(client, hdfs_src_path, hdfs_dst_path):
     client.rename(hdfs_src_path, hdfs_dst_path)
 
 
