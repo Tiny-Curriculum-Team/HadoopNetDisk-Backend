@@ -48,12 +48,12 @@ def upload_files(request):
             create_table(client_hbase, "SBhbase", "fileinfo", "filedata")
             # "fileinfo"                            "filedata"
             # "filename", "suffix", "hdfspath"      "username", "permission", "size"
-            insert_a_row(client_hbase, user_name, row_data, "fileinfo", "filename", file_name)
-            insert_a_row(client_hbase, user_name, row_data, "fileinfo", "suffix", file_suffix)
-            insert_a_row(client_hbase, user_name, row_data, "fileinfo", "hdfspath", hdfs_path)
-            insert_a_row(client_hbase, user_name, row_data, "filedata", "username", user_name)
-            insert_a_row(client_hbase, user_name, row_data, "filedata", "permission", 0)
-            insert_a_row(client_hbase, user_name, row_data, "filedata", "size", sys.getsizeof(new_file))
+        insert_a_row(client_hbase, user_name, row_data, "fileinfo", "filename", file_name)
+        insert_a_row(client_hbase, user_name, row_data, "fileinfo", "suffix", file_suffix)
+        insert_a_row(client_hbase, user_name, row_data, "fileinfo", "hdfspath", hdfs_path)
+        insert_a_row(client_hbase, user_name, row_data, "filedata", "username", user_name)
+        insert_a_row(client_hbase, user_name, row_data, "filedata", "permission", 0)
+        insert_a_row(client_hbase, user_name, row_data, "filedata", "size", sys.getsizeof(new_file))
     except Exception as e:
         print(e)
         return JsonResponse({'code': 500, 'message': 'hbase error'})
