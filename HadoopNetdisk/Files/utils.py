@@ -90,7 +90,6 @@ def list_all_tables(client):
     return client.getTableNames()
 
 
-
 def create_table(client, table_name, *col_familys):
     '''
     创建新表
@@ -113,7 +112,7 @@ def del_table(client, table_name):
     删除表
     '''
     if client.isTableEnabled(table_name):
-        client.disableTable(table_name)  # 删除表前需要先设置该表不可用
+        client.disableTable(table_name)
     client.deleteTable(table_name)
     print('删除表{}成功！'.format(table_name))
 
@@ -141,8 +140,10 @@ def insert_a_row(client, table_name, row_name, col_family, column_name, value):
     print('在{0}表{1}列簇{2}列插入{3}数据成功.'.format(table_name, col_family, column_name, value))
 
 
-def find_file(client, table_name, profix, columus):
-    scan_id = client.scannerOpenWithPrefix(table_name, profix, columus)
+def find_file(client, table_name, prefix, columus: list = None):
+    if columus is None:
+        columus = []
+    scan_id = client.scannerOpenWithPrefix(table_name, prefix, columus)
     result = client.scannerGet(scan_id)
     return result
 

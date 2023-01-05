@@ -100,7 +100,7 @@ def search_for_files(request):
     profix = data.get("profix")
     try:
         client_hbase = connect_to_hbase()
-        result = find_file(client_hbase,"SBhbase",profix,"filename")
+        result = find_file(client_hbase, "SBhbase", profix, "filename")
         print(result)
         return JsonResponse(json.dumps(result))
     except Exception as e:
