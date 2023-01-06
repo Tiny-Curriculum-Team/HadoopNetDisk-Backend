@@ -12,6 +12,10 @@ vim hdfs-site.xml
         <name>dfs.webhdfs.enabled</name>
         <value>true</value>
     </property>
+    <property>
+        <name>dfs.permissions.enabled</name>
+        <value>false</value>
+    </property>
 vim core-site.xml
 # 在coufiguration中加上这两列
     <property>
