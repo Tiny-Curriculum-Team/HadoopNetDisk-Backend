@@ -1,13 +1,18 @@
-# env update
+# Docker配置Hadoop集群步骤
 
 ```shell
+docker pull pommespeter0601/hbase-docker
+docker run -itd -p 9090:9090 -p 14000:14000 --name hdp --restart=always pommespeter0601/hbase-docker
+docker exec -it hdp bash
+# docker stop $(docker ps -a -q) # 停止所有容器
+# docker rm $(docker ps -a -q) # 删除所有容器
 cd /usr/local/hadoop/etc/hadoop
 
 vim httpfs-env.sh
 # export HTTPFS_HTTP_PORT=14000 # 取消该行的注释
 
 vim hdfs-site.xml
-# 在coufiguration中加上这一列
+# 添加以下部分
     <property>
         <name>dfs.webhdfs.enabled</name>
         <value>true</value>
@@ -17,7 +22,7 @@ vim hdfs-site.xml
         <value>false</value>
     </property>
 vim core-site.xml
-# 在coufiguration中加上这两列
+# 添加以下部分
     <property>
         <name>hadoop.proxyuser.hadoop.hosts</name>
         <value>*</value>

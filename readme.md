@@ -1,13 +1,48 @@
-## Docker
-
-本项目需要由docker安装Hadoop集群，执行如下命令：
+# Docker配置Hadoop集群步骤
 
 ```shell
 docker pull pommespeter0601/hbase-docker
-docker run -itd -p 9870:9870 -p 9090:9090 --name hdp pommespeter0601/hbase-docker
+docker run -itd -p 9090:9090 -p 14000:14000 --name hdp --restart=always pommespeter0601/hbase-docker
+docker exec -it hdp bash
+# docker stop $(docker ps -a -q) # 停止所有容器
+# docker rm $(docker ps -a -q) # 删除所有容器
+cd /usr/local/hadoop/etc/hadoop
+
+vim httpfs-env.sh
+# export HTTPFS_HTTP_PORT=14000 # 取消该行的注释
+
+vim hdfs-site.xml
+# 添加以下部分
+    <property>
+        <name>dfs.webhdfs.enabled</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.permissions.enabled</name>
+        <value>false</value>
+    </property>
+vim core-site.xml
+# 添加以下部分
+    <property>
+        <name>hadoop.proxyuser.hadoop.hosts</name>
+        <value>*</value>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.hadoop.groups</name>
+        <value>*</value>
+    </property>
 ```
 
-## 为什么用MySQL存储用户信息而不是使用HBase？
+# Hadoop启动步骤
+```shell
+docker exec -it hdp bash # 通过Bash进入Docker容器的终端
+su hadoop # 切换用户为Hadoop
+sudo /etc/init.d/ssh restart # 重启SSH
+start-dfs.sh && start-hbase.sh && hbase-daemon.sh start thrift && hdfs --daemon start httpfs # 启动项目所需的所有服务
+jps # 查看正在运行的进程
+```
+
+# 为什么用MySQL存储用户信息而不是使用HBase？
 
 > 参考：https://xie.infoq.cn/article/071daf5f50cfbfb5198b9c30d
 
