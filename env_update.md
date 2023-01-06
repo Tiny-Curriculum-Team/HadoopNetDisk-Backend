@@ -29,9 +29,6 @@ vim core-site.xml
     
 su hadoop
 sudo /etc/init.d/ssh restart
-start-dfs.sh
-start-hbase.sh
-hbase-daemon.sh start thrift
-httpfs.sh start
+start-dfs.sh && start-hbase.sh && hbase-daemon.sh start thrift && hdfs --daemon start httpfs
 jps
 ```
