@@ -27,8 +27,13 @@ vim core-site.xml
         <value>*</value>
     </property>
     
+vim hadoop-env.sh
+# 在其中加入这一行
+HADOOP_SHELL_EXECNAME=root
+
 su hadoop
 sudo /etc/init.d/ssh restart
 start-dfs.sh && start-hbase.sh && hbase-daemon.sh start thrift && hdfs --daemon start httpfs
 jps
+hadoop fs -chmod -R 777 /
 ```

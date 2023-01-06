@@ -28,7 +28,7 @@ def upload_files(request):
     with open(temp_path, "wb") as f:
         f.write(new_file)
     try:
-        hdfs_path = os.path.join(root_path, user_name, file_path)  # 例："http://127.0.0.1:9870/xiaomai/download"
+        hdfs_path = os.path.join(root_path, user_name, file_path)
         client_hdfs = connect_to_hdfs()
         upload_to_hdfs(client_hdfs, temp_path, hdfs_path)
         file_size = os.path.getsize(temp_path) / (1024 * 1024 * 1024)
