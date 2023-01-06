@@ -1,5 +1,5 @@
 docker pull pommespeter0601/hbase-docker
-docker run -itd -p 16010:16010 -p 9780:9780 -p 9090:9090 -p 14000:14000 --name hdp pommespeter0601/hbase-docker
+docker run -itd -p 9090:9090 -p 14000:14000 --name hdp --restart=always pommespeter0601/hbase-docker
 docker exec -it <containerID or containerName> bash
 # docker stop $(docker ps -a -q)
 # docker rm $(docker ps -a -q)
